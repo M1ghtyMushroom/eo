@@ -1,5 +1,17 @@
 #!/bin/bash
 
+# help function
+help() {
+    echo "eo - Tool for optimal battery health.
+    It checks the battery status and percentage every 10 minutes.
+    If while charging the battery is over 85%, it sends a notification.
+    -------------------------------------
+    Usage: eo [start|install|auto]
+        start   Start the script to monitor battery health.
+        install Install the script to /usr/bin.
+        auto    Configure automatic setup."
+}
+
 # Function to send notification
 notify_user() {
     notify-send -t 5000 "Battery Alert" "Battery is over 80%. Unplug for optimal battery health."
@@ -37,6 +49,12 @@ install_script() {
 # Function to handle the $1 parameter
 handle_parameter() {
     case "$1" in
+        help)
+            help
+            ;;
+        start)
+            main &
+            ;;
         install)
             install_script
             ;;
@@ -51,7 +69,7 @@ handle_parameter() {
             echo "> Setup successful."
             ;;
         *)
-            echo "> Invalid parameter. Use 'install' to install the script to /usr/bin, or 'auto' to configure automatic setup."
+            echo "> Invalid parameter. Run 'eo help' for more information."
             exit 1
             ;;
     esac
@@ -59,18 +77,18 @@ handle_parameter() {
 
 # Main function to run the script logic
 main() {
+    echo "> eo% is now running.."
     while true; do
-        echo "> eo% is now running.."
         get_battery_info
         check_battery
         sleep 600  # Sleep for 10 minutes before checking again
     done
 }
 
-# Check if a parameter was provided
+# Check the parameter
 check_dependencies
 if [[ -n "$1" ]]; then
     handle_parameter "$1"
 else
-    main &
+    help
 fi
